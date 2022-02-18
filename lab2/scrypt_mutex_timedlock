@@ -1,0 +1,13 @@
+#!/bin/bash
+
+NC='\033[0m' # no color
+RED='\033[0;31m'
+
+echo -e "${RED}Starting: mutex_timedlock (max time of waiting = 3 sec)${NC}"
+g++ -pthread mutex_timedlock.cpp -o executable_mutex_timedlock.out
+
+./executable_mutex_timedlock.out
+
+echo -e "${RED}End: mutex_timedlock${NC}"
+
+rm executable_mutex_timedlock.out

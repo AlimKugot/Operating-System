@@ -4,29 +4,11 @@ NC='\033[0m' # no color
 RED='\033[0;31m'
 
 g++ -pthread mutex_lock.cpp -o executable_mutex_lock.out
-printf '=%.0s' {1..43}
-echo -e "\n|| Starting program only with ${RED}mutex_lock${NC} ||"
-printf '=%.0s' {1..43}
-echo -e '\n'
+echo -e "${RED}Starting: mutex_lock${NC}"
+
 ./executable_mutex_lock.out
-printf '=%.0s' {1..27}
-echo -e "\n|| End program with lock ||"
-printf '=%.0s' {1..27}
 
-echo -e '\n\n\n'
+echo -e "${RED}End:  mutex_lock${NC}"
+rm executable_mutex_lock.out
 
 
-g++ -pthread mutex_try_lock.cpp -o executable_mutex_try_lock.out
-printf '=%.0s' {1..78}
-echo -e "\n|| Starting program with ${RED}mutex_try_lockedtime${NC} (max time of waiting = 3 sec) ||"
-printf '=%.0s' {1..78}
-echo -e '\n'
-./executable_mutex_try_lock.out
-printf '=%.0s' {1..43}
-echo -e "\n|| End program with mutex_try_lockedtime ||"
-printf '=%.0s' {1..43}
-echo -e '\n'
-
-
-printf '_%.0s' {1..100}
-echo -e "@author github.com/AlimKugot/Operating-System"
