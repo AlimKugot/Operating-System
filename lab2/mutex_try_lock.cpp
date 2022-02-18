@@ -14,11 +14,12 @@ void* proc(void* arg) {
 	int rv = pthread_mutex_timedlock(&mutex, &wait_time);
 
 	if (((long) arg) == 3) {
+		cout << "!!! Thread " << (long) arg << " is sleeping for a 5 sec !!!" << endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 	}
 
 	if (rv != 0) {
-		cerr << "We've problems with mutex_timedlock. Thread " << (int*) arg << endl;
+		cerr << "!!! We've problems with mutex_timedlock. Thread " << (long) arg << endl;
 	}
 	N++;
 	pthread_mutex_unlock(&mutex);
