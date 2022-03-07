@@ -3,3 +3,4 @@
 g++ -pthread main.cpp -o executable.out
 echo -e "Starting execute program with bash"
 ./executable.out
+rm executable.out
