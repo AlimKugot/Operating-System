@@ -1,39 +1,21 @@
 #!/bin/bash
 
+
 NC='\033[0m' # no color
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 
-# Program 1
-g++ -pthread mutex_lock.cpp -o executable_mutex_lock.out
-printf '=%.0s' {1..43}
-echo -e "\n|| Starting program only with ${RED}mutex_lock${NC} ||"
-printf '=%.0s' {1..43}
-echo -e '\n'
-./executable_mutex_lock.out
-printf '=%.0s' {1..27}
-echo -e "\n|| End program with lock ||"
-printf '=%.0s' {1..27}
+
+# Program
+g++ -pthread main.cpp -o executable_main.out
+./executable_main.out
 
 echo -e '\n\n\n'
 
-# Program 2
-g++ -pthread mutex_try_lock.cpp -o executable_mutex_try_lock.out
-printf '=%.0s' {1..78}
-echo -e "\n|| Starting program with ${RED}mutex_try_lockedtime${NC} (max time of waiting = 3 sec) ||"
-printf '=%.0s' {1..78}
-echo -e '\n'
-./executable_mutex_try_lock.out
-printf '=%.0s' {1..43}
-echo -e "\n|| End program with mutex_try_lockedtime ||"
-printf '=%.0s' {1..43}
-echo -e '\n'
+# Author
+printf '_%.0s' {1..100}
+echo -e "@author ${BLUE}github.com/AlimKugot/Operating-System${NC}"
 
 
 # Clean up
-rm executable_mutex_lock.out
-rm executable_mutex_try_lock.out
-
-
-# Author
-printf '_%.0s' {1..100}
-echo -e "@author github.com/AlimKugot/Operating-System"
+rm executable_main.out
