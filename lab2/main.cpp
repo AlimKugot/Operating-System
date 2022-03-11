@@ -1,5 +1,5 @@
 #include <iostream>
-#include <thread>
+#include <unistd.h>
 #include <semaphore.h>
 #include <pthread.h>
 
@@ -15,11 +15,11 @@ void* proc1(void* isEnd) {
 	int count = 0;
 
 	while (!(*((bool*) isEnd))) {
-		cout << "Starting proc1 " << endl;
+		cout << "Starting locking semaphore 1" << endl;
 		sem_wait(&semaphore);
 		for (int i = 0; i < 5; i++) {
 			cout << 1;
-			this_thread::sleep_for(chrono::milliseconds(1000));
+			sleep(1);
 		}
 		cout << " ";
 		sem_post(&semaphore);
@@ -32,11 +32,11 @@ void* proc1(void* isEnd) {
 void* proc2(void* isEnd) {
 
 	while (!(*((bool*) isEnd))) {
-		cout << "Starting proc2 " << endl;
+		cout << "Starting locking semaphore 2" << endl;
 		sem_wait(&semaphore);
 		for (int i = 0; i < 5; i++) {
 			cout << 2;
-			this_thread::sleep_for(chrono::milliseconds(1000));
+			sleep(1);
 		}
 		cout << " ";
 		sem_post(&semaphore);
@@ -48,7 +48,9 @@ void* proc2(void* isEnd) {
 int main() {
 	cout << "Starting c++ program" << endl;
 	
-	sem_init(&semaphore, true, 1);
+	// from https://docs.oracle.com/cd/E19455-01/806-5257/sync-42602/index.html
+	// When pshared is nonzero, the semaphore can be shared by other processes.
+	sem_init(&semaphore, 0, 1);
 
 	bool* isEnd = new bool;
 	*isEnd = false;
