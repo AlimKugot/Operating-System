@@ -4,18 +4,86 @@
 NC='\033[0m' # no color
 RED='\033[0;31m'
 BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+GRAY='\033[1;30m' 
+
+function show_start_beatiful_program {
+		printf " "
+		printf "${GRAY}_%.0s" {1..33}
+		printf "\n"
+		printf "| \t\t\t\t  |\n"
+		echo -e "| \t ${NC}starting program ${1} ${GRAY} \t  |" 
+		printf "|"
+		printf "_%.0s" {1..33}
+		printf "|\n"
+		printf "\n\n${NC}"
+}
+
+function show_end_beatiful_program {
+		printf " "
+		printf "${GRAY}_%.0s" {1..33}
+		printf "\n"
+		printf "| \t\t\t\t  |\n"
+		echo -e "| \t ${NC}ending program  ${1} ${GRAY} \t  |" 
+		printf "|"
+		printf "_%.0s" {1..33}
+		printf "|\n"
+		printf "\n\n${NC}"
+}
 
 
-# Program
-g++ -pthread main.cpp -o executable_main.out
-./executable_main.out
+echo -e "\n\n"
 
-echo -e '\n\n\n'
+printf "${RED} _%.0s" {1..40}
+printf "\n\n"
+echo -e "| \t\t\t\t \t\t \t\t\t\t |"
+echo -e "  \t\t\t\t ${NC}Starting lab2${RED} \t\t\t\t\t  " 
+echo -e "| \t\t\t\t \t\t \t\t\t\t |"
+printf " _%.0s" {1..40}
 
-# Author
+
+echo -e "\n\n\n\n${NC}"
+
+while true; do
+	echo -e "Enter ${GREEN}1${NC}  -  start program with semaphore_wait"
+	echo -e "Enter ${GREEN}2${NC}  -  start program with semaphore_trywait"
+	echo -e "Enter ${GREEN}3${NC}  -  start program with semaphore_timedwait"
+	echo -e "Enter ${RED}0${NC}  -  to exit\n"
+
+	read -p 'Your choice: ' ans
+	if test $ans -eq 1; then
+		show_start_beatiful_program 1
+		g++ -pthread sem_wait.cpp -o executable_sem_wait.out
+		./executable_sem_wait.out
+		show_end_beatiful_program 1
+	elif test $ans -eq 2; then 
+		show_start_beatiful_program 2
+		g++ -pthread sem_trywait.cpp -o executable_sem_trywait.out
+		./executable_sem_trywait.out
+		show_end_beatiful_program 2
+	elif test $ans -eq 3; then 
+		show_start_beatiful_program 3
+		g++ -pthread sem_timedwait.cpp -o executable_sem_timedwait.out
+		./executable_sem_timedwait.out
+		show_end_beatiful_program 3
+	elif test $ans -eq 0; then
+		break;	
+	else
+		echo -e "${RED}Error: wrong input $ans"
+		echo -e "Please try again ...${NC}\n"
+		sleep .5 
+	fi
+	printf "${GREEN}_%.0s${NC}" {1..20}
+	echo -e '\n\n'
+	sleep 1
+done
+
+
+echo -e "\n\n"
+
+# Author 
 printf '_%.0s' {1..100}
 echo -e "@author ${BLUE}github.com/AlimKugot/Operating-System${NC}"
 
-
 # Clean up
-rm executable_main.out
+rm -f *.out
