@@ -1,0 +1,77 @@
+#!/bin/bash
+
+
+NC='\033[0m' # no color
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+GRAY='\033[1;30m' 
+
+function show_start_beatiful_program {
+		printf " "
+		printf "${GRAY}_%.0s" {1..33}
+		printf "\n"
+		printf "| \t\t\t\t  |\n"
+		echo -e "| \t ${NC}starting program ${1} ${GRAY} \t  |" 
+		printf "|"
+		printf "_%.0s" {1..33}
+		printf "|\n"
+		printf "\n\n${NC}"
+}
+
+function show_end_beatiful_program {
+		printf " "
+		printf "${GRAY}_%.0s" {1..33}
+		printf "\n"
+		printf "| \t\t\t\t  |\n"
+		echo -e "| \t ${NC}ending program  ${1} ${GRAY} \t  |" 
+		printf "|"
+		printf "_%.0s" {1..33}
+		printf "|\n"
+		printf "\n\n${NC}"
+}
+
+
+echo -e "\n\n"
+
+printf "${RED} _%.0s" {1..40}
+printf "\n\n"
+echo -e "| \t\t\t\t \t\t \t\t\t\t |"
+echo -e "  \t\t\t\t ${NC}Starting lab3${RED} \t\t\t\t\t  " 
+echo -e "| \t\t\t\t \t\t \t\t\t\t |"
+printf " _%.0s" {1..40}
+
+
+echo -e "\n\n\n\n${NC}"
+
+while true; do
+	echo -e "Enter ${GREEN}1${NC}  -  start program with pipe_block"
+	echo -e "Enter ${RED}0${NC}  -  to exit\n"
+
+	read -p 'Your choice: ' ans
+	if test $ans -eq 1; then
+		show_start_beatiful_program 1
+		g++ -pthread pipe_block.cpp -o executable_pipe_block.out
+		./executable_pipe_block.out
+		show_end_beatiful_program 1
+	elif test $ans -eq 0; then
+		break;	
+	else
+		echo -e "${RED}Error: wrong input $ans"
+		echo -e "Please try again ...${NC}\n"
+		sleep .5 
+	fi
+	printf "${GREEN}_%.0s${NC}" {1..20}
+	echo -e '\n\n'
+	sleep 1
+done
+
+
+echo -e "\n\n"
+
+# Author 
+printf '_%.0s' {1..100}
+echo -e "@author ${BLUE}github.com/AlimKugot/Operating-System${NC}"
+
+# Clean up
+rm -f *.out
