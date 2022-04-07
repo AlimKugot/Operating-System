@@ -35,20 +35,6 @@ int main(int argc, char* argv[]) {
 		//cout << terminal_comand << endl;
 		//execlp("sh", "sh", "-c", terminal_comand, NULL);
 		execlp("sh", "sh", "-c", "g++ program1.cpp -o p1.out && . && ./p1.out", NULL);
-
-		/*
-		// We need to compile program2 before starting program1
-		if ((child_pid = fork()) == 0) {
-			cout << "Program 2. Compiling program 1." << endl;
-			execlp("g++", "g++", "program1.cpp", "-o", "p1.out",  (char *) NULL); 
-		} else if (child_pid > 0) {
-			cout << "Program 2. Executing program 1." << endl;
-			execlp("sh", "sh", "-c", "g++ program1.cpp -o p1.out && p1.out", NULL);
-			//execlp("./p1.out", "./p1.out", argc, argv_line, (char *) NULL);
-		} else {
-			perror("child fork error");
-		}
-		*/
 	} else do {
 		// do it repeatly
 		if ((pid = waitpid(pid, &status, WNOHANG)) == -1) {
