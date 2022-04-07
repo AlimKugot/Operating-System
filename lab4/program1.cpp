@@ -16,5 +16,6 @@ int main(int argc, char* argv[]) {
 		sleep(1);
 	}
 	cout << "Program 1. End" << endl;
-	return 0;
+	cout << string(20, '-') << endl;
+	return 25;
 }
