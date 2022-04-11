@@ -10,14 +10,20 @@ pthread_mutex_t mutex;
 
 void* func1(void* isEnd) {
 	cout << "Starting thread 1" << endl;
-	struct timespec wait_time;
+	struct timespec timeout;
+	if (clock_gettime(CLOCK_REALTIME, &timeout)) {
+		perror("clock gettime");
+	}
+
 	while (!(*((bool*) isEnd))) {
-		wait_time.tv_sec = ((long long) time(0)) + 3l;
-		cout << "Thread 1. Current time: " << wait_time.tv_sec << endl;
-		while (pthread_mutex_timedlock(&mutex, &wait_time) != 0) {
-			cerr << "Thread 1 has problems with waiting for a mutex_timedlock. Current time: " << wait_time.tv_sec << endl;
-			cout << "Thread 1. Current time: " << to_string(wait_time.tv_sec) << endl;
-			wait_time.tv_sec = ((long long) time(0)) + 3l;
+		cout << "Thread 1. Current time: " << timeout.tv_sec << endl;
+		timeout.tv_sec += 3;
+		while (pthread_mutex_timedlock(&mutex, &timeout) != 0) {
+			if (clock_gettime(CLOCK_REALTIME, &timeout)) {
+				perror("clock gettime");
+			}
+			cerr << "Thread 1 has problems with waiting for a mutex_timedlock. Current time: " << timeout.tv_sec << endl;
+			cout << "Thread 1. Current time: " << to_string(timeout.tv_sec) << endl;
 		}
 
 		cout << "locked mutex 1" << endl;
