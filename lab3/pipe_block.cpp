@@ -32,6 +32,8 @@ void* proc1(void* isEnd) {
 
 void* proc2(void* isEnd) {
 	char buf[BUFFER_SIZE];
+	cout << "Starting writing proc" << endl;
+
 
 	const char* FILE_NAME = "output.txt"; 
 	FILE *fp = fopen(FILE_NAME, "rb+");
