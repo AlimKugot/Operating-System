@@ -1,0 +1,9 @@
+#!/bin/bash
+
+g++ -pthread program1.cpp -o p1.out
+./p1.out
+rm p1.out
+
+# Author 
+printf '_%.0s' {1..100}
+echo -e "@author github.com/AlimKugot/Operating-System"
