@@ -1,6 +1,0 @@
-#!/bin/bash
-
-g++ -pthread pipe_block.cpp -o executable_pipe_block.out
-./executable_pipe_block.out
-
-rm -f *.out

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <pthread.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -35,7 +36,7 @@ void* proc2(void* isEnd) {
     cout << "Starting writing proc" << endl;
 
 
-    const char* FILE_NAME = "output.txt";
+    const char* FILE_NAME = "output2.txt";
     FILE *fp = fopen(FILE_NAME, "rb+");
     if (fp != NULL) {
         cout << "Deleting file: " << FILE_NAME << endl;
@@ -73,7 +74,7 @@ void* proc2(void* isEnd) {
             cerr << "Cannot write into into buffer" << endl;
             j = 0;
         } else {
-            cout << "Writing to output.txt" << endl;
+            cout << "Writing to output2.txt" << endl;
             fwrite(buf, sizeof (char), sizeof (buf), fp);
         }
         sleep(1);
@@ -94,7 +95,7 @@ int main() {
     pthread_t threads[NUM_THREADS];
 
 
-    int rv = pipe(pipe_arr);
+    int rv = pipe2(pipe_arr, O_NONBLOCK);
     if (rv < 0) {
         cout << "Error: creating pipe" << endl;
         sleep(1);
@@ -119,6 +120,8 @@ int main() {
     pthread_join(threads[0], &status1);
     pthread_join(threads[1], &status2);
 
+    close(pipe_arr[0]);
+    close(pipe_arr[1]);
     cout << "End of program" << endl;
     delete isEnd;
     return 0;
