@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <fcntl.h>
+#include <grp.h>
 
 using namespace std;
 
@@ -43,6 +44,7 @@ void* proc2(void* isEnd) {
         remove(FILE_NAME);
     }
     cout << "Creating file: " << FILE_NAME << endl;
+    // open file
     fp = fopen(FILE_NAME, "wb");
 
     int j = 0;
@@ -59,8 +61,9 @@ void* proc2(void* isEnd) {
             }
             j = 0;
         }
-        int id = (int) getgid();
-        string msg = "The group ID of the calling process is " + to_string(id) + "\n";
+        gid_t id = getgid();
+	struct group *grp = getgrgid(id); 
+        string msg = "The group name of the calling process is " + string(grp->gr_name) + "\n";
 
         // fill buffer by function
         for (char c : msg) {
@@ -70,6 +73,7 @@ void* proc2(void* isEnd) {
 
         // write into pipe buffer
         int rv = write(pipe_arr[1], buf, sizeof buf);
+	// write to file
         if (rv == -1) {
             cerr << "Cannot write into into buffer" << endl;
             j = 0;
