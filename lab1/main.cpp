@@ -1,6 +1,11 @@
 #include <iostream>
 #include <unistd.h>
 #include <pthread.h>
+#include <errno.h>
+
+#define handle_error_en(en, msg) \
+               do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+
 
 using namespace std;
 
@@ -38,20 +43,30 @@ void* proc2(void* isEnd) {
 int main() {
 	setlocale(LC_ALL, "Russian");
 	cout << "Старт программы" << endl;
+	int ret;
 
 	bool* isEnd = new bool;
 	*isEnd = false;
 
 	pthread_t threads[2];
 
+	cout << "Создание атрибута" << endl;
+	pthread_attr_t attr; 
+	if ((ret = pthread_attr_init(&attr)) != 0) {
+		handle_error_en(ret, "cannot init attr"); 
+	}
+	cout << "Инициализация атрибута" << endl;
+	if ((ret = pthread_attr_setstack(&attr, NULL, 10000)) != 0) {
+		handle_error_en(ret, "stack error"); 
+	}
 	cout << "Создание потока 1" << endl;
-	if (pthread_create(&threads[0], NULL, proc1, isEnd) == -1) {
-		perror("невозоможно создать поток 1");
+	if ((ret = pthread_create(&threads[0], &attr, proc1, isEnd)) != 0) {
+		handle_error_en(ret, "cannot create thread 1"); 
 	}
 
 	cout << "Создание потока 2" << endl;
-	if (pthread_create(&threads[1], NULL, proc2, isEnd) == -1) {
-		perror("невозоможно создать поток 2");
+	if ((ret = pthread_create(&threads[1], NULL, proc2, isEnd)) != 0) {
+		handle_error_en(ret, "cannot create thread 2");
 	}
 
 	getchar();
