@@ -1,73 +1,47 @@
-#include <iostream>
-#include <unistd.h>
-#include <pthread.h>
-#include <errno.h>
-
-#define handle_error_en(en, msg) \
-               do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+#include <stdio.h> /* поддержка функции printf */
+#include <unistd.h> /* поддержка функции sleep */
+#include <pthread.h> /* поддержка многопоточности */
 
 
-using namespace std;
-
-
-void* proc1(void* isEnd) {
-	cout << "Старт потока 1" << endl;
-	int i = 0;
-	string msg = "";
-
-	while (!(*((bool*) isEnd))) {
-		i++;
-		msg += to_string(i) + "+";	
-		cout << "Функция 1: " << msg << endl;
+void* function_1(void* isEnd) {
+	printf("Starting function 1\n");
+	for (int i = 0; !(*((bool*) isEnd)); i++) {
+		printf("function 1 is running: %d\n", i);
 		sleep(1);
 	}
-	pthread_exit(0);
+	int* success = new int;
+	*success = 0;
+	pthread_exit((void*) success);
 }
 
 
-void* proc2(void* isEnd) {
-	cout << "Старт потока 2" << endl;
-	int i = 0;
-	string msg = "";
-
-	while (!(*((bool*) isEnd))) {
-		i++;
-		msg += to_string(i) + "_";	
-		cout << "Функция 2: " << msg << endl;
+void* function_2(void* isEnd) {
+	printf("Starting function 2\n");
+	for (int i = 0; !(*((bool*) isEnd)); i++) {
+		printf("function 2 is running: %d\n", i);
 		sleep(1);
 	}	
-	pthread_exit(0);
+	int* success = new int;
+	*success = 0;
+	pthread_exit((void*) success);
 }
 
 
 int main() {
-	setlocale(LC_ALL, "Russian");
-	cout << "Старт программы" << endl;
-	int ret;
-
+	printf("@Author Ekaterina Alexeeva\n");
+	pthread_t thr1;
+	pthread_t thr2;
 	bool* isEnd = new bool;
 	*isEnd = false;
 
-	pthread_t threads[2];
 
-	cout << "Создание атрибута" << endl;
-	pthread_attr_t attr; 
-	if ((ret = pthread_attr_init(&attr)) != 0) {
-		handle_error_en(ret, "cannot init attr"); 
-	}
-	cout << "Инициализация атрибута" << endl;
-	if ((ret = pthread_attr_setstack(&attr, NULL, 10000)) != 0) {
-		handle_error_en(ret, "stack error"); 
-	}
-	cout << "Создание потока 1" << endl;
-	if ((ret = pthread_create(&threads[0], &attr, proc1, isEnd)) != 0) {
-		handle_error_en(ret, "cannot create thread 1"); 
-	}
+	printf("Creating thread 1\n");
+	int ret = pthread_create(&thr1, NULL, &function_1, isEnd);
+	if (ret != 0) perror("create first");
 
-	cout << "Создание потока 2" << endl;
-	if ((ret = pthread_create(&threads[1], NULL, proc2, isEnd)) != 0) {
-		handle_error_en(ret, "cannot create thread 2");
-	}
+	printf("Creating thread 2\n");
+	ret = pthread_create(&thr2, NULL, &function_2, isEnd);
+	if (ret != 0) perror("create second");
 
 	getchar();
 
@@ -76,11 +50,11 @@ int main() {
 	void* status1;
 	void* status2;
 
-	pthread_join(threads[0], &status1);
-	pthread_join(threads[1], &status2);
+	pthread_join(thr1, &status1);
+	pthread_join(thr2, &status2);
 
-	cout << "Статус выполнения первой функции  " << ((int*) status1) << endl;
-	cout << "Статус выполнения второй функции  " << ((int*) status2) << endl;
-	cout << "Конец программы" << endl;
+	printf("Result of function 1 is %d\n", *((int*) status1));
+	printf("Result of function 2 is %d\n", *((int*) status2));
+	delete isEnd;
 	return 0;
 }

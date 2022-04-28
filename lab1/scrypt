@@ -2,4 +2,3 @@
 
 g++ -pthread main.cpp -o executable.out
 ./executable.out
-rm executable.out
