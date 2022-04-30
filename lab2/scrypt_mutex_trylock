@@ -1,14 +1,7 @@
 #!/bin/bash
 
-NC='\033[0m' # no color
-RED='\033[0;31m'
-
 g++ -pthread mutex_trylock.cpp -o executable_mutex_trylock.out
-echo -e "${RED}Starting: mutex_trylock${NC}"
-
 ./executable_mutex_trylock.out
-
-echo -e "${RED}End: mutex_trylock${NC}"
 rm executable_mutex_trylock.out
 
 

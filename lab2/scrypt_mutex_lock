@@ -1,14 +1,7 @@
 #!/bin/bash
 
-NC='\033[0m' # no color
-RED='\033[0;31m'
-
 g++ -pthread mutex_lock.cpp -o executable_mutex_lock.out
-echo -e "${RED}Starting: mutex_lock${NC}"
-
 ./executable_mutex_lock.out
-
-echo -e "${RED}End:  mutex_lock${NC}"
 rm executable_mutex_lock.out
 
 

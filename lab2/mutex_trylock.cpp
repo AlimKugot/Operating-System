@@ -2,20 +2,25 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
+#include <error.h>
+
+#define handle_error_en(en, msg) \
+               do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+
 
 using namespace std;
 
 pthread_mutex_t mutex;
 
 
-void* func1(void* isEnd) {
-	cout << "Starting thread 1" << endl;
+void* proc1(void* isEnd) {
+	cout << "Поток 1 начал работу" << endl;
 	while (!(*((bool*) isEnd))) {
 		while (pthread_mutex_trylock(&mutex) != 0) {
-			cout << "Thread 1: Cannot lock mutex" << endl;
+			cout << "Trylock не заблокировал 1" << endl;
 			sleep(1);
 		}
-		cout << "locked mutex 1" << endl;
+		cout << "Заблокирован 1" << endl;
 
 		for (int i = 0; i < 5; i++) {
 			cout << 1 << endl;
@@ -23,22 +28,21 @@ void* func1(void* isEnd) {
 		}
 
 		pthread_mutex_unlock(&mutex);
-		cout << "unlocked mutex 1" << endl;
+		cout << "Разаблокирован 1" << endl;
 		sleep(1);
 	}
 	pthread_exit(NULL);
 }
 
 
-void* func2(void* isEnd) {
-	cout << "Starting thread 2" << endl;
-	struct timespec wait_time;
+void* proc2(void* isEnd) {
+	cout << "Поток 2 начал работу" << endl;
 	while (!(*((bool*) isEnd))) {
 		while (pthread_mutex_trylock(&mutex) != 0) {
-			cout << "Thread 2: Cannot lock mutex" << endl;
+			cout << "Trylock не заблокировал 2" << endl;
 			sleep(1);
 		}
-		cout << "locked mutex 2" << endl;
+		cout << "Заблокирован 2" << endl;
 
 		for (int i = 0; i < 5; i++) {
 			cout << 2 << endl;
@@ -46,7 +50,7 @@ void* func2(void* isEnd) {
 		}
 
 		pthread_mutex_unlock(&mutex);
-		cout << "unlocked mutex 2" << endl;
+		cout << "Разаблокирован 2" << endl;
 		sleep(1);
 	}
 	pthread_exit(NULL);
@@ -54,28 +58,26 @@ void* func2(void* isEnd) {
 
 
 int main() {
-	cout << "Starting program" << endl;
+	setlocale(LC_ALL, "Russian");
+	cout << "Старт" << endl;
 
 	pthread_t p1, p2;
 	pthread_mutex_init(&mutex, NULL);
 
-	bool* isEnd1 = new bool;
-	bool* isEnd2 = new bool;
-	*isEnd1 = false;
-	*isEnd2 = false;
+	bool* isEnd = new bool;
+	*isEnd = false;
 
-	pthread_create(&p1, NULL, &func1, (void*) isEnd1);
-	pthread_create(&p2, NULL, &func2, (void*) isEnd1);
+	pthread_create(&p1, NULL, &proc1, (void*) isEnd);
+	pthread_create(&p2, NULL, &proc2, (void*) isEnd);
 
 	getchar();
-	*isEnd1 = true;
-	*isEnd2 = true;
+	*isEnd = true;
 
 	pthread_join(p1, NULL);
 	pthread_join(p2, NULL);
 
 	pthread_mutex_destroy(&mutex);
-	delete isEnd1;
-	delete isEnd2;
+	cout << "Конец" << endl;
+	delete isEnd;
 	return 0;
 }
