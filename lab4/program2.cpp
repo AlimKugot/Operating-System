@@ -6,37 +6,19 @@
 using namespace std;
 
 
-
-string convert_argv_to_string(int argc, char* argv[]) {
-	string argv_line = "";
-	int i;
-	for (i = 0; i < argc - 1; i++) {
-		argv_line += string(argv[i]) + " ";
-	}
-	argv_line += argv[i];
-	return argv_line;
-}
-
-
 int main(int argc, char* argv[]) {
 	cout << "Program 2. Start" << endl;
 	cout << "Program 2. Curent ID: " << getpid() << endl;
 	cout << "Program 2. Parent ID: " << getppid() << endl;
 	int status;
 	pid_t pid;
-	string argv_line = convert_argv_to_string(argc, argv);
-	cout << argv_line << endl;
 
 	if ((pid = fork()) < 0) {
 		perror("fork error");
 	} else if (pid == 0) {
 		cout << "Program 2. Child ID: " << getpid() << endl;
-		//string terminal_comand = "g++ program1.cpp -o p1.out && . && ./p1.out " + argv_line;
-		//cout << terminal_comand << endl;
-		//execlp("sh", "sh", "-c", terminal_comand, NULL);
-		execlp("sh", "sh", "-c", "g++ program1.cpp -o p1.out && . && ./p1.out", NULL);
+		execve("./p1.out", argv, NULL);
 	} else do {
-		// do it repeatly
 		if ((pid = waitpid(pid, &status, WNOHANG)) == -1) {
 			perror("waiting error");
 		} else if (pid == 0) {
