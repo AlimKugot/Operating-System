@@ -17,7 +17,9 @@ int main(int argc, char* argv[]) {
 		perror("fork error");
 	} else if (pid == 0) {
 		cout << "Program 2. Child ID: " << getpid() << endl;
-		execve("./p1.out", argv, NULL);
+		// задаём переменную окружения
+		char* const env[] = {"OWNER=Ilya Nechaev 0392", NULL};
+		execve("./p1.out", argv, env);
 	} else do {
 		if ((pid = waitpid(pid, &status, WNOHANG)) == -1) {
 			perror("waiting error");

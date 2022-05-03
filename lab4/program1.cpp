@@ -9,6 +9,9 @@ int main(int argc, char* argv[]) {
 	cout << "Program 1. Current ID: " << getpid() << endl; 
 	cout << "Program 1. Parent ID: " << getppid() << endl;
 
+	// печатаем переменную окружения
+	cout << "Program 1. OWNER=" << getenv("OWNER") << endl;
+
 	for (int i = 0; i < argc; i++) {
 		cout << "Progrma 1. Args: \t\t\t" << argv[i] << endl;
 		sleep(1);
