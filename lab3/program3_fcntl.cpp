@@ -1,8 +1,11 @@
 #include <iostream>
 #include <unistd.h>
 #include <pthread.h>
-#include <fcntl.h>
-#include <grp.h>
+#include <time.h>
+#include <fcntl.h> // pipe2
+
+#define handle_error_en(en, msg) \
+               do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
 using namespace std;
 
@@ -13,13 +16,17 @@ const int BUFFER_SIZE = 256;
 
 void* proc1(void* isEnd) {
     char buf[BUFFER_SIZE];
-    cout << "Starting reading proc" << endl;
+    cout << "Начинается чтение" << endl;
     while (!(*((bool*) isEnd))) {
         int rv = read(pipe_arr[0], buf, sizeof(buf));
         if (rv == -1) {
-            cerr << "Error reading buffer" << endl;
+	    //handle_error_en(-1, "reading buffer");
+	    
+	    // without exit
+	    perror("reading buffer");
+	    sleep(1);
         } else {
-            cout << "Success reading buffer: ";
+            cout << "Успешно прочитан pipe buffer: ";
             for (int i = 0; i < BUFFER_SIZE && buf[i] != '\0'; i++) {
                 cout << buf[i];
             }
@@ -34,51 +41,53 @@ void* proc1(void* isEnd) {
 
 void* proc2(void* isEnd) {
     char buf[BUFFER_SIZE];
-    cout << "Starting writing proc" << endl;
+    cout << "Начинается заполнение" << endl;
 
-
+    // file
     const char* FILE_NAME = "output3.txt";
-    FILE *fp = fopen(FILE_NAME, "rb+");
-    if (fp != NULL) {
-        cout << "Deleting file: " << FILE_NAME << endl;
-        remove(FILE_NAME);
-    }
-    cout << "Creating file: " << FILE_NAME << endl;
-    // open file
-    fp = fopen(FILE_NAME, "wb");
+    cout << "Создание файла: " << FILE_NAME << endl;
+    FILE *fp = fopen(FILE_NAME, "w");
 
     int j = 0;
     while (!(*((bool*) isEnd))) {
         // if buffer is full
         if (buf[BUFFER_SIZE - 1] != '\0') {
             cout << string(20, '-') << endl;
-            cout << "Clean up buffer" << endl;
+            cout << "Очистка буфера" << endl;
             cout << string(20, '-') << endl;
 
             //clean up
-            for (char & z : buf) {
-                z = '\0';
-            }
-            j = 0;
+	    for (char & c : buf) {
+		    c = '\0';
+	    }
+	    buf[0] = '\n';
+            j = 1;
         }
+	// date function
         gid_t id = getgid();
-	struct group *grp = getgrgid(id);
-        string msg = "The group name of the calling process is " + string(grp->gr_name) + "\n";
+	time_t t = time(NULL);
+	struct tm* tm = localtime(&t);
+	char today_date[100];
+	strftime (today_date, 100, "%Y-%m-%d %H:%M:%S\n", tm);
+	string msg = today_date;
 
-        // fill buffer by function
+	// fill buffer
         for (char c : msg) {
             buf[j] = c;
             j++;
         }
 
-        // write into pipe buffer
+	// wrtie 
         int rv = write(pipe_arr[1], buf, sizeof buf);
-	// write to file
         if (rv == -1) {
-            cerr << "Cannot write into into buffer" << endl;
+	    // handle_error_en(rv, "cannot write to buffer");
+	    
+	    // without exit
+	    perror("cannot write to buffer");
+	    sleep(1);
             j = 0;
         } else {
-            cout << "Writing to output3.txt" << endl;
+            cout << "Пишем в output3.txt" << endl;
             fwrite(buf, sizeof (char), sizeof (buf), fp);
         }
         sleep(1);
@@ -90,29 +99,24 @@ void* proc2(void* isEnd) {
 
 
 int main() {
-    cout << "Starting c++ program" << endl;
+    setlocale(LC_ALL, "Russian");
+    cout << "Старт" << endl;
 
-    bool* isEnd = new bool;
-    *isEnd = false;
-
-    const int NUM_THREADS = 2;
-    pthread_t threads[NUM_THREADS];
-
+    pthread_t threads[2];
 
     int rv = pipe(pipe_arr);
-    if (rv < 0) {
-        cout << "Error: creating pipe" << endl;
-        sleep(1);
-        exit(rv);
+    if (rv != 0) {
+    	handle_error_en(rv, "creating pipe");
     } else if (rv == 0) {
-        cout << "Success creating pipe array" << endl;
+        cout << "Успешное создание pipe[2]" << endl;
         sleep(1);
-    } else {
-        perror("Error: strange pipe rv " + rv);
     }
     fcntl(pipe_arr[0], F_SETFL, O_NONBLOCK);
     fcntl(pipe_arr[1], F_SETFL, O_NONBLOCK);
 
+
+    bool* isEnd = new bool;
+    *isEnd = false;
 
     pthread_create(&threads[0], NULL, proc1, isEnd);
     pthread_create(&threads[1], NULL, proc2, isEnd);
@@ -126,7 +130,9 @@ int main() {
     pthread_join(threads[0], &status1);
     pthread_join(threads[1], &status2);
 
-    cout << "End of program" << endl;
+    cout << "Конец" << endl;
+    close(pipe_arr[0]);
+    close(pipe_arr[1]);
     delete isEnd;
     return 0;
 }
