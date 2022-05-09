@@ -47,14 +47,19 @@ int main() {
 
 	*isEnd = true;
 
-	void* status1;
-	void* status2;
+	void* p1;
+	void* p2;
 
-	pthread_join(thr1, &status1);
-	pthread_join(thr2, &status2);
+	pthread_join(thr1, &p1);
+	pthread_join(thr2, &p2);
 
-	printf("Result of function 1 is %d\n", *((int*) status1));
-	printf("Result of function 2 is %d\n", *((int*) status2));
+	int* status1 = (int*) p1;
+	int* status2 = (int*) p2;
+
+	printf("Result of function 1 is %d\n", *(status1));
+	printf("Result of function 2 is %d\n", *(status2));
 	delete isEnd;
+	delete status1;
+	delete status2;
 	return 0;
 }
