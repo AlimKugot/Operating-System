@@ -16,15 +16,18 @@ const int BUFFER_SIZE = 256;
 void* proc1(void* isEnd) {
     char buf[BUFFER_SIZE];
     cout << "Начинается чтение" << endl;
+    int j = 0;
     while (!(*((bool*) isEnd))) {
         int rv = read(pipe_arr[0], buf, sizeof(buf));
         if (rv == -1) {
 	    handle_error_en(-1, "reading buffer");
+	    sleep(1);
         } else {
-            cout << "Успешно прочитан pipe buffer: ";
-            for (int i = 0; i < BUFFER_SIZE && buf[i] != '\0'; i++) {
-                cout << buf[i];
+            cout << "принято: ";
+            while (j < BUFFER_SIZE && buf[j] != '\0') {
+                cout << buf[j++];
             }
+	    if (j >= BUFFER_SIZE) j = 0;
             cout << endl;
         }
         sleep(1);
@@ -37,11 +40,6 @@ void* proc1(void* isEnd) {
 void* proc2(void* isEnd) {
     char buf[BUFFER_SIZE];
     cout << "Начинается заполнение" << endl;
-
-    // file
-    const char* FILE_NAME = "output1.txt";
-    cout << "Создание файла: " << FILE_NAME << endl;
-    FILE *fp = fopen(FILE_NAME, "w");
 
     int j = 0;
     while (!(*((bool*) isEnd))) {
@@ -66,20 +64,18 @@ void* proc2(void* isEnd) {
 	strftime (today_date, 100, "%Y-%m-%d %H:%M:%S\n", tm);
 	string msg = today_date;
 
+	cout << "передано: ";
 	// fill buffer
         for (char c : msg) {
-            buf[j] = c;
-            j++;
+            buf[j++] = c;
+	    cout << c;
         }
 
 	// wrtie 
         int rv = write(pipe_arr[1], buf, sizeof buf);
         if (rv == -1) {
-	    handle_error_en(rv, "error writing to buffer");
-            j = 0;
-        } else {
-            cout << "Пишем в output1.txt" << endl;
-            fwrite(buf, sizeof (char), sizeof (buf), fp);
+	    handle_error_en(rv, "cannot write to buffer");
+	    sleep(1);
         }
         sleep(1);
     }

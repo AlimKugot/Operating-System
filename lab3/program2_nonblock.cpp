@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
-#include <fcntl.h> // pipe2
+#include <fcntl.h>
 
 #define handle_error_en(en, msg) \
                do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
@@ -17,19 +17,21 @@ const int BUFFER_SIZE = 256;
 void* proc1(void* isEnd) {
     char buf[BUFFER_SIZE];
     cout << "Начинается чтение" << endl;
+    int j = 0;
     while (!(*((bool*) isEnd))) {
         int rv = read(pipe_arr[0], buf, sizeof(buf));
         if (rv == -1) {
-	    //handle_error_en(-1, "reading buffer");
-	    
+	    // handle_error_en(-1, "reading buffer");
+	    //
 	    // without exit
 	    perror("reading buffer");
 	    sleep(1);
         } else {
-            cout << "Успешно прочитан pipe buffer: ";
-            for (int i = 0; i < BUFFER_SIZE && buf[i] != '\0'; i++) {
-                cout << buf[i];
+            cout << "принято: ";
+            while (j < BUFFER_SIZE && buf[j] != '\0') {
+                cout << buf[j++];
             }
+	    if (j >= BUFFER_SIZE) j = 0;
             cout << endl;
         }
         sleep(1);
@@ -42,11 +44,6 @@ void* proc1(void* isEnd) {
 void* proc2(void* isEnd) {
     char buf[BUFFER_SIZE];
     cout << "Начинается заполнение" << endl;
-
-    // file
-    const char* FILE_NAME = "output2.txt";
-    cout << "Создание файла: " << FILE_NAME << endl;
-    FILE *fp = fopen(FILE_NAME, "w");
 
     int j = 0;
     while (!(*((bool*) isEnd))) {
@@ -71,24 +68,22 @@ void* proc2(void* isEnd) {
 	strftime (today_date, 100, "%Y-%m-%d %H:%M:%S\n", tm);
 	string msg = today_date;
 
+	cout << "передано: ";
 	// fill buffer
         for (char c : msg) {
-            buf[j] = c;
-            j++;
+            buf[j++] = c;
+	    cout << c;
         }
 
 	// wrtie 
         int rv = write(pipe_arr[1], buf, sizeof buf);
         if (rv == -1) {
-	    // handle_error_en(rv, "cannot write to buffer");
-	    
+	    // handle_error_en(rv, "error writing to buffer");
+	    //
 	    // without exit
-	    perror("cannot write to buffer");
+	    perror("wriring buffer");
 	    sleep(1);
             j = 0;
-        } else {
-            cout << "Пишем в output2.txt" << endl;
-            fwrite(buf, sizeof (char), sizeof (buf), fp);
         }
         sleep(1);
     }
@@ -111,6 +106,8 @@ int main() {
         cout << "Успешное создание pipe[2]" << endl;
         sleep(1);
     }
+
+
 
     bool* isEnd = new bool;
     *isEnd = false;
