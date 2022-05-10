@@ -1,7 +1,0 @@
-#!/bin/bash
-
-g++ -pthread mutex_trylock.cpp -o executable_mutex_trylock.out
-./executable_mutex_trylock.out
-rm executable_mutex_trylock.out
-
-

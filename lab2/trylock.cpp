@@ -1,34 +1,26 @@
-#include <iostream>
-#include <unistd.h>
-#include <pthread.h>
-#include <time.h>
-#include <error.h>
-
-#define handle_error_en(en, msg) \
-               do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
-
-
-using namespace std;
+#include <stdio.h> // printf 
+#include <unistd.h> // sleep 
+#include <pthread.h> // mutex
 
 pthread_mutex_t mutex;
 
 
 void* proc1(void* isEnd) {
-	cout << "Поток 1 начал работу" << endl;
+	printf("Thread 1: start\n");
 	while (!(*((bool*) isEnd))) {
 		while (pthread_mutex_trylock(&mutex) != 0) {
-			cout << "Trylock не заблокировал 1" << endl;
+			printf("Trylock 1 not blocked\n");
 			sleep(1);
 		}
-		cout << "Заблокирован 1" << endl;
+		printf("Locked 1\n");
 
 		for (int i = 0; i < 5; i++) {
-			cout << 1 << endl;
+			printf("%d\n", 1);
 			sleep(1);
 		}
 
 		pthread_mutex_unlock(&mutex);
-		cout << "Разаблокирован 1" << endl;
+		printf("Unlocked 1\n");
 		sleep(1);
 	}
 	pthread_exit(NULL);
@@ -36,21 +28,21 @@ void* proc1(void* isEnd) {
 
 
 void* proc2(void* isEnd) {
-	cout << "Поток 2 начал работу" << endl;
+	printf("Thread 2: start\n");
 	while (!(*((bool*) isEnd))) {
 		while (pthread_mutex_trylock(&mutex) != 0) {
-			cout << "Trylock не заблокировал 2" << endl;
+			printf("Trylock 2 not blocked\n");
 			sleep(1);
 		}
-		cout << "Заблокирован 2" << endl;
+		printf("Locked 2\n");
 
 		for (int i = 0; i < 5; i++) {
-			cout << 2 << endl;
+			printf("%d\n", 2);
 			sleep(1);
 		}
 
 		pthread_mutex_unlock(&mutex);
-		cout << "Разаблокирован 2" << endl;
+		printf("Unlocked 2\n");
 		sleep(1);
 	}
 	pthread_exit(NULL);
@@ -58,9 +50,7 @@ void* proc2(void* isEnd) {
 
 
 int main() {
-	setlocale(LC_ALL, "Russian");
-	cout << "Старт" << endl;
-
+	printf("Start.\n");
 	pthread_t p1, p2;
 	pthread_mutex_init(&mutex, NULL);
 
@@ -77,7 +67,7 @@ int main() {
 	pthread_join(p2, NULL);
 
 	pthread_mutex_destroy(&mutex);
-	cout << "Конец" << endl;
+	printf("END.\n");
 	delete isEnd;
 	return 0;
 }

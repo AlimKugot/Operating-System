@@ -1,5 +1,0 @@
-#!/bin/bash
-
-g++ -pthread mutex_timedlock.cpp -o executable_mutex_timedlock.out
-./executable_mutex_timedlock.out
-rm executable_mutex_timedlock.out
