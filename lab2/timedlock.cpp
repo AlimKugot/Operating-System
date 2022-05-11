@@ -14,7 +14,9 @@ void* proc1(void* isEnd) {
 	while (!(*((bool*) isEnd))) {
 		time.tv_sec += 3;
 		while (pthread_mutex_timedlock(&mutex, &time) != 0) {
+			perror("Timedlock 1");
 			clock_gettime(CLOCK_REALTIME, &time);
+			time.tv_sec += 3;
 		}
 		printf("Locked 1\n");
 
@@ -39,7 +41,9 @@ void* proc2(void* isEnd) {
 	while (!(*((bool*) isEnd))) {
 		time.tv_sec += 3;
 		while (pthread_mutex_timedlock(&mutex, &time) != 0) {
+			perror("Timedlock 2");
 			clock_gettime(CLOCK_REALTIME, &time);
+			time.tv_sec += 3;
 		}
 		printf("Locked 2\n");
 

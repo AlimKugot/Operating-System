@@ -9,7 +9,7 @@ void* proc1(void* isEnd) {
 	printf("Thread 1: start\n");
 	while (!(*((bool*) isEnd))) {
 		while (pthread_mutex_trylock(&mutex) != 0) {
-			printf("Trylock 1 not blocked\n");
+			perror("Trylock 1");
 			sleep(1);
 		}
 		printf("Locked 1\n");
@@ -31,7 +31,7 @@ void* proc2(void* isEnd) {
 	printf("Thread 2: start\n");
 	while (!(*((bool*) isEnd))) {
 		while (pthread_mutex_trylock(&mutex) != 0) {
-			printf("Trylock 2 not blocked\n");
+			perror("Trylock 2");
 			sleep(1);
 		}
 		printf("Locked 2\n");
