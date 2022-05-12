@@ -1,10 +1,9 @@
 #include <iostream>
-#include <unistd.h>
-#include <pthread.h>
-#include <time.h>
+#include <unistd.h> 
+#include <pthread.h> // pipe
+#include <cstring> // strerror
+#include <sys/utsname.h> // uts function
 
-#define handle_error_en(en, msg) \
-               do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
 using namespace std;
 
@@ -15,20 +14,21 @@ const int BUFFER_SIZE = 256;
 
 void* proc1(void* isEnd) {
     char buf[BUFFER_SIZE];
-    cout << "Начинается чтение" << endl;
+    printf("Read function is starting\n"); 
     int j = 0;
+
     while (!(*((bool*) isEnd))) {
         int rv = read(pipe_arr[0], buf, sizeof(buf));
         if (rv == -1) {
-	    handle_error_en(-1, "reading buffer");
+	    perror("redaing buffer error");
 	    sleep(1);
         } else {
-            cout << "принято: ";
+	    printf("accepted: ");
             while (j < BUFFER_SIZE && buf[j] != '\0') {
-                cout << buf[j++];
+		printf("%c", buf[j++]);
             }
 	    if (j >= BUFFER_SIZE) j = 0;
-            cout << endl;
+	    printf("\n");
         }
         sleep(1);
     }
@@ -39,42 +39,35 @@ void* proc1(void* isEnd) {
 
 void* proc2(void* isEnd) {
     char buf[BUFFER_SIZE];
-    cout << "Начинается заполнение" << endl;
-
+    printf("Write function is starting\n"); 
     int j = 0;
+
     while (!(*((bool*) isEnd))) {
         // if buffer is full
         if (buf[BUFFER_SIZE - 1] != '\0') {
-            cout << string(20, '-') << endl;
-            cout << "Очистка буфера" << endl;
-            cout << string(20, '-') << endl;
-
-            //clean up
-	    for (char & c : buf) {
-		    c = '\0';
-	    }
-	    buf[0] = '\n';
-            j = 1;
+	    printf("\n\n\nClean up buffer\n\n\n");
+	    memset(buf, 0, sizeof(buf));
+            j = 0;
         }
-	// date function
-        gid_t id = getgid();
-	time_t t = time(NULL);
-	struct tm* tm = localtime(&t);
-	char today_date[100];
-	strftime (today_date, 100, "%Y-%m-%d %H:%M:%S\n", tm);
-	string msg = today_date;
 
-	cout << "передано: ";
-	// fill buffer
+	// uts function
+	struct utsname uts;
+	if (uname(&uts) < 0) {
+		perror("uname() error");
+		sleep(1);
+	} 
+	string msg = string(uts.sysname) + ", " + string(uts.nodename) + ", " + string(uts.machine) + "\n";
+
+	printf("passed: ");
         for (char c : msg) {
             buf[j++] = c;
-	    cout << c;
+	    printf("%c", c);
         }
 
 	// wrtie 
         int rv = write(pipe_arr[1], buf, sizeof buf);
         if (rv == -1) {
-	    handle_error_en(rv, "cannot write to buffer");
+	    perror("writing buffer error");
 	    sleep(1);
         }
         sleep(1);
@@ -86,16 +79,16 @@ void* proc2(void* isEnd) {
 
 
 int main() {
-    setlocale(LC_ALL, "Russian");
-    cout << "Старт" << endl;
-
+    printf("@Author Ekaterina Alexeeva\n");
+    printf("Start\n");
     pthread_t threads[2];
 
     int rv = pipe(pipe_arr);
     if (rv != 0) {
-    	handle_error_en(rv, "creating pipe");
+	// Добавила strerror - замечание с прошлой сдачи работы
+	strerror(rv);
     } else if (rv == 0) {
-        cout << "Успешное создание pipe[2]" << endl;
+	printf("Success creating pipe[2]\n");
         sleep(1);
     }
 
@@ -115,7 +108,7 @@ int main() {
     pthread_join(threads[0], &status1);
     pthread_join(threads[1], &status2);
 
-    cout << "Конец" << endl;
+    printf("End\n");
     close(pipe_arr[0]);
     close(pipe_arr[1]);
     delete isEnd;
