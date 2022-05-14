@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-
 using namespace std;
 
 
@@ -36,6 +35,6 @@ int main(int argc, char* argv[]) {
                     cout << "Program 2. End" << endl;
                 }
             }
-        } while (pid == 0);
+    } while (pid == 0);
     return 0;
 }
