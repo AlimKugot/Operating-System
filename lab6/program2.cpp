@@ -98,45 +98,37 @@ void sig_handler(int signo) {
 }
 
 
-/*
- * @func: create msg
- */
-string create_msg() {
-	struct hostent *lh = gethostbyname("www.github.com");
-	string msg_string = string(lh->h_name);
-	return msg_string;
-}
-
 
 /*
  * @func: to create thread
  */
-void* proc_write(void* isEnd) {
-	cout << "proc_write is starting" << endl;
+void* proc_read(void* isEnd) {
+	cout << "proc_read:\t is starting" << endl;
 	int i = 0;
 	while (!(*((bool*) isEnd))) {	
-		string msg = create_msg();
-		msg = "Iter " + to_string(i) + "\t\t\t" + msg + "\n";
-		cout << "Passed: " << msg;
-
-		const int N = msg.length();
-		for (int i = 0; i < BUF_SIZE && i < N; i++) {
-			buf[i] = msg.at(i);
-		}
-
-		memcpy(data, buf, BUF_SIZE);
-
-		if (sem_post(sem_write) == -1) {
-			perror("proc 1 sem_post(sem_write) error");
+		cout << "proc_read:\t waiting sem_write" << endl;
+		if (sem_wait(sem_write) == -1) {
+			perror("proc2 sem_wait(sem_write)");
+			sleep(1);
 		} else {
-			cout << "Proc1:\t sem posted write" << endl;
+			cout << "proc_read:\t is reading" << endl;
 		}
-		if (sem_wait(sem_read) == -1) {
-			perror("proc 1 sem wait(sem_read) error");
+
+		memcpy(buf, data, strlen(data));
+
+		cout << "Proc2 accepted msg:\t ";
+		for (int i = 0; i < BUF_SIZE && buf[i] != '\0'; i++) {
+			cout << buf[i];
+		}
+		cout << endl;
+
+		if (sem_post(sem_read) == -1) {
+			perror("proc 2 sem_post(sem_read) error");
+			sleep(1);
 		} else {
-			cout << "Proc1:\t waiting read sem" << endl;
+			cout << "Proc2:\t sem_read posted" << endl;
 		}
-			
+
 		i++;
 		sleep(1);
 	}
@@ -186,7 +178,7 @@ int main() {
 	// create thread
 	pthread_t th1;
 	int rv;
-	if ((rv = pthread_create(&th1, NULL, proc_write, isEnd)) != 0) {
+	if ((rv = pthread_create(&th1, NULL, proc_read, isEnd)) != 0) {
 		cout << strerror(rv) << endl;
 		exit(rv);
 	}
