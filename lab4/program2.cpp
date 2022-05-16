@@ -18,8 +18,8 @@ int main(int argc, char* argv[]) {
     // child
     } else if (pid == 0) {
         cout << "Program 2. Child ID: " << getpid() << endl;
-        char* const env[] = {"author=Ekaterina", nullptr};
-        execvpe("./p1.out", argv, env);
+        char* const env[] = {"author=Ekaterina", "favourite film=Anna Karenina", nullptr};
+        execve("p1.out", argv, env);
     // parrent
     } else do {
 	    int rv;

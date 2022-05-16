@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
 	cout << "Program 1. Parent ID: " << getppid() << endl;
 
 	cout << "Program 1. Author = "  << getenv("author") << endl;
+	cout << "Program 1. Favourite film = "  << getenv("favourite film") << endl;
 	for (int i = 0; i < argc; i++) {
 		cout << "Program 1. args: " << argv[i] << endl;
 		sleep(1);
